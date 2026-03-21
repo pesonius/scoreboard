@@ -477,11 +477,11 @@
 
   // ── Touch guards ──────────────────────────────────────────────────────────
   document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-  // Allow button/link taps, but prevent double-tap zoom on court
+  // Prevent double-tap zoom, but allow taps on interactive elements
   document.addEventListener('touchend', e => {
     const tag = e.target.tagName;
     if (tag === 'BUTTON' || tag === 'A') return;
-    // player-panel taps handled via onclick; prevent default zoom
+    if (e.target.closest('.player-panel')) return;
     e.preventDefault();
   }, { passive: false });
 
