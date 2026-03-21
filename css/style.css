@@ -719,6 +719,11 @@ body.scoreboard-page {
   justify-content: center;
   padding: 1.4vh 1vw;
   flex-shrink: 0;
+  transition: background 0.2s;
+}
+.name-bar.serving {
+  background: rgba(34, 160, 74, 0.35);
+  border-bottom-color: #22a04a;
 }
 .player-name {
   font-size: clamp(18px, 4vh, 52px);

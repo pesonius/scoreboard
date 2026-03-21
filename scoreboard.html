@@ -418,6 +418,7 @@
 
     for (let i = 0; i < 2; i++) {
       $(`player-name-${i}`).textContent = config.playerNames[i] || `P${i + 1}`;
+      $(`player-name-${i}`).closest('.name-bar').classList.toggle('serving', st.server === i);
       const icon = $(`server-dot-${i}`);
       if (icon) icon.classList.toggle('active', st.server === i);
     }
