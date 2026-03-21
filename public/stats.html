@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Scoreboard — Season Stats</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="stats-page">
+<div class="page-wrap">
+  <header>
+    <h1>Season Statistics</h1>
+    <div class="stats-controls">
+      <select id="sport-filter" onchange="renderAll()">
+        <option value="">All Sports</option>
+        <option value="badminton">Badminton</option>
+        <option value="tennis">Tennis</option>
+        <option value="squash">Squash</option>
+        <option value="tabletennis">Table Tennis</option>
+      </select>
+      <button class="btn btn-secondary" onclick="exportToJSON()">Export</button>
+      <button class="btn btn-secondary" onclick="triggerImport()">Import</button>
+      <input type="file" id="import-file" accept=".json" onchange="handleImport(event)">
+      <a href="index.html" class="btn btn-secondary">Setup</a>
+    </div>
+  </header>
+
+  <!-- Standings -->
+  <div class="stats-section">
+    <h2>Standings</h2>
+    <div id="standings-container">
+      <div class="empty-state">No matches recorded yet.</div>
+    </div>
+  </div>
+
+  <!-- Head-to-Head -->
+  <div class="stats-section">
+    <h2>Head-to-Head</h2>
+    <div id="h2h-container">
+      <div class="empty-state">No matches recorded yet.</div>
+    </div>
+  </div>
+
+  <!-- Recent Matches -->
+  <div class="stats-section">
+    <h2>Recent Matches</h2>
+    <div id="recent-container">
+      <div class="empty-state">No matches recorded yet.</div>
+    </div>
+  </div>
+</div>
+
+<script src="js/history.js"></script>
+<script src="js/stats.js"></script>
+<script>
+'use strict';
+
+function getSportFilter() {
+  return document.getElementById('sport-filter').value || null;
+}
+
+function renderAll() {
+  const sport = getSportFilter();
+  const history = getAllMatches();
+  renderStandings(history, sport);
+  renderH2H(history, sport);
+  renderRecent(history, sport);
+}
+
+// ── Standings ─────────────────────────────────────────────────────────────
+function renderStandings(history, sport) {
+  const container = document.getElementById('standings-container');
+  const standings = computeStandings(history, sport);
+
+  if (!standings.length) {
+    container.innerHTML = '<div class="empty-state">No matches recorded yet.</div>';
+    return;
+  }
+
+  const rows = standings.map((s, i) => `
+    <tr>
+      <td class="rank">${i + 1}</td>
+      <td class="name">${escHtml(s.playerName)}</td>
+      <td>${s.wins}</td>
+      <td>${s.losses}</td>
+      <td class="win-pct">${s.winPct}%</td>
+      <td>${s.setsWon} / ${s.setsLost}</td>
+      <td>${s.gamesPlayed}</td>
+      <td>${s.avgGameSec ? fmtTime(s.avgGameSec) : '—'}</td>
+      <td>${s.avgRallySec ? s.avgRallySec + 's' : '—'}</td>
+      <td>${s.totalMinutes ? s.totalMinutes + ' min' : '—'}</td>
+    </tr>`).join('');
+
+  container.innerHTML = `
+    <table class="standings-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Player</th>
+          <th>W</th>
+          <th>L</th>
+          <th>Win%</th>
+          <th>Sets W/L</th>
+          <th>Played</th>
+          <th>Avg Game</th>
+          <th>Avg Rally</th>
+          <th>Total Time</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ── Head-to-Head ─────────────────────────────────────────────────────────
+function renderH2H(history, sport) {
+  const container = document.getElementById('h2h-container');
+  const h2h = computeHeadToHead(history, sport);
+  const players = getPlayersFromHistory(sport ? history.filter(m => m.sport === sport) : history);
+
+  if (!players.length || !h2h.size) {
+    container.innerHTML = '<div class="empty-state">No matches recorded yet.</div>';
+    return;
+  }
+
+  const headerCells = players.map(p => `<th>${escHtml(p.name)}</th>`).join('');
+
+  const rows = players.map(p => {
+    const cells = players.map(opp => {
+      if (p.id === opp.id) return '<td class="h2h-self">–</td>';
+      const rec = h2h.get(p.id)?.get(opp.id);
+      if (!rec) return '<td class="h2h-cell">—</td>';
+      const cls = rec.wins > rec.losses ? 'h2h-win' : rec.wins < rec.losses ? 'h2h-loss' : 'h2h-cell';
+      return `<td class="${cls}">${rec.wins}-${rec.losses}</td>`;
+    }).join('');
+    return `<tr><th>${escHtml(p.name)}</th>${cells}</tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <table class="h2h-table">
+      <thead><tr><th></th>${headerCells}</tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ── Recent Matches ────────────────────────────────────────────────────────
+function renderRecent(history, sport) {
+  const container = document.getElementById('recent-container');
+  const filtered = (sport ? history.filter(m => m.sport === sport) : history)
+    .slice().reverse().slice(0, 30);
+
+  if (!filtered.length) {
+    container.innerHTML = '<div class="empty-state">No matches recorded yet.</div>';
+    return;
+  }
+
+  const items = filtered.map(m => {
+    const p0 = m.players[0]?.name || 'P1';
+    const p1 = m.players[1]?.name || 'P2';
+    const winner = m.winner === 0 ? p0 : p1;
+    const loser  = m.winner === 0 ? p1 : p0;
+    const date = m.date ? new Date(m.date).toLocaleDateString(undefined, { month:'short', day:'numeric' }) : '';
+    const setsStr = `${m.setsWon[0]}-${m.setsWon[1]}`;
+    const gamesStr = (m.gamesHistory || []).map(g => `${g.points[0]}-${g.points[1]}`).join(', ');
+    const sportName = { badminton:'Badminton', tennis:'Tennis', squash:'Squash', tabletennis:'Table Tennis' }[m.sport] || m.sport;
+    const modeLabel = m.sessionMode ? 'Session' : (m.bestOf ? `Best of ${m.bestOf}` : '');
+    const durLabel = m.durationSeconds ? fmtTime(m.durationSeconds) : '';
+    const avgRallyLabel = (() => {
+      const r = m.pointDurations;
+      if (!r || !r.length) return '';
+      return Math.round(r.reduce((a, b) => a + b, 0) / r.length) + 's avg rally';
+    })();
+
+    return `<div class="match-item">
+      <div class="match-header">
+        <span>${date}</span>
+        <span class="sport-badge ${m.sport}">${sportName}</span>
+        ${modeLabel ? `<span>${modeLabel}</span>` : ''}
+        ${durLabel ? `<span>⏱ ${durLabel}</span>` : ''}
+        ${avgRallyLabel ? `<span>${avgRallyLabel}</span>` : ''}
+      </div>
+      <div class="match-result">${escHtml(winner)} def. ${escHtml(loser)} &nbsp; ${setsStr}</div>
+      ${gamesStr ? `<div class="match-games">${gamesStr}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  container.innerHTML = `<div class="match-list">${items}</div>`;
+}
+
+// ── Export / Import ──────────────────────────────────────────────────────
+function triggerImport() {
+  document.getElementById('import-file').click();
+}
+
+async function handleImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const result = await importFromJSON(file);
+    alert(`Imported ${result.matchesAdded} matches and ${result.playersAdded} players.`);
+    renderAll();
+  } catch (err) {
+    alert('Import failed: ' + err.message);
+  }
+  e.target.value = '';
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function fmtTime(totalSeconds) {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+document.addEventListener('DOMContentLoaded', renderAll);
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+</script>
+</body>
+</html>
