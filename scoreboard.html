@@ -396,43 +396,22 @@
   // ── Render ────────────────────────────────────────────────────────────────
   function $(id) { return document.getElementById(id); }
 
-  const SPORT_ICONS = { badminton: '🏸', tennis: '🎾', squash: '🟡', tabletennis: '🏓' };
-
   function render(st, opts = {}) {
     const display = sport.getDisplayScore(st);
-    const isTennis = config.sport === 'tennis';
 
-    // Sport icon + game counter
-    $('sport-label').textContent = SPORT_ICONS[config.sport] || '🏅';
-    $('game-info').textContent = config.sessionMode
-      ? `Game ${st.currentGame}`
-      : `Game ${st.currentGame} of ${st.bestOf}`;
+    $('sport-label').textContent = config.doubles ? '🏸🏸' : '🏸';
+    $('game-info').textContent = `Game ${st.currentGame}`;
 
-    // Player names + serve icons
     for (let i = 0; i < 2; i++) {
       $(`player-name-${i}`).textContent = config.playerNames[i] || `P${i + 1}`;
       const icon = $(`server-dot-${i}`);
       if (icon) icon.classList.toggle('active', st.server === i);
     }
 
-    // Main score numbers
     const s0 = $('score-0');
     const s1 = $('score-1');
-
-    if (isTennis) {
-      const isTxt = /[A-Z]/.test(display.p1);
-      setScore(s0, display.p1, isTxt);
-      setScore(s1, display.p2, isTxt);
-      $('tennis-games-p0').textContent = st.points[0];
-      $('tennis-games-p1').textContent = st.points[1];
-      $('tennis-games-p0').classList.remove('hidden');
-      $('tennis-games-p1').classList.remove('hidden');
-    } else {
-      setScore(s0, display.p1, false);
-      setScore(s1, display.p2, false);
-      $('tennis-games-p0').classList.add('hidden');
-      $('tennis-games-p1').classList.add('hidden');
-    }
+    setScore(s0, display.p1, false);
+    setScore(s1, display.p2, false);
 
     if (opts.undo) { flashUndo(s0); flashUndo(s1); }
 

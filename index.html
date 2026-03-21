@@ -28,9 +28,10 @@
       <div class="guide-section">
         <h3>Quick Start</h3>
         <ul>
-          <li>Add players to the roster, then tap to select <strong>P1</strong> and <strong>P2</strong>.</li>
-          <li>Choose a sport and match format.</li>
-          <li>Set your clicker buttons under <em>Key Mapping</em> — press <em>Set Key</em> then press the physical button.</li>
+          <li>Add players to the roster, then tap to select them.</li>
+          <li>Choose Singles or Doubles format.</li>
+          <li>Choose points to win (21 or 11).</li>
+          <li>Set your clicker buttons under <em>Key Mapping</em>.</li>
           <li>Tap <strong>Start Match</strong> — the scoreboard opens full-screen.</li>
         </ul>
       </div>
@@ -40,23 +41,23 @@
         <table class="guide-table">
           <tr>
             <td>Short press</td>
-            <td>Score a point for that player. Press immediately and release.</td>
+            <td>Score a point for that player/team.</td>
           </tr>
           <tr>
             <td>Long press <span style="color:var(--text-muted);font-size:1.6vh">(≥ 0.8 s)</span></td>
-            <td>Undo the last point. Hold until the score flashes red, then release.</td>
+            <td>Undo the last point. Hold until the score flashes red.</td>
           </tr>
           <tr>
             <td>Button 1</td>
-            <td>Point for the <span style="color:var(--accent);font-weight:700">left player (P1)</span>.</td>
+            <td>Point for the <span style="color:var(--accent);font-weight:700">left side</span>.</td>
           </tr>
           <tr>
             <td>Button 2</td>
-            <td>Point for the <span style="color:var(--success);font-weight:700">right player (P2)</span>.</td>
+            <td>Point for the <span style="color:var(--success);font-weight:700">right side</span>.</td>
           </tr>
         </table>
         <p style="margin-top:1.2vh;font-size:1.7vh;color:var(--text-muted)">
-          The golden dot (●) next to a name indicates the current server.
+          The golden dot (●) indicates the current server.
           Up to 50 undo steps are stored — they survive a page refresh.
         </p>
       </div>
@@ -64,59 +65,34 @@
       <div class="guide-section">
         <h3>iPad Setup</h3>
         <ul>
-          <li>Connect your Bluetooth clicker to the iPad — it must produce <em>keyboard</em> events (arrow keys, letters, or space work; volume keys are intercepted by iOS).</li>
-          <li>Open this page in Safari on the same WiFi network using the Mac's local IP address and port 3000.</li>
-          <li>For true full-screen (no Safari chrome): tap the <em>Share</em> button → <em>Add to Home Screen</em>, then open from the home screen icon.</li>
+          <li>Connect your Bluetooth clicker to the iPad — it must produce <em>keyboard</em> events (arrow keys, letters, or space; volume keys are intercepted by iOS).</li>
+          <li>For full-screen: tap Share → <em>Add to Home Screen</em>, then open from the home screen icon.</li>
+        </ul>
+      </div>
+
+      <div class="guide-section">
+        <h3>Session Mode</h3>
+        <ul>
+          <li>Games are unlimited — play as many as you want.</li>
+          <li>After each game an overlay shows the winner and running tally. Press any button to start the next game.</li>
+          <li>Each game is saved to history individually.</li>
+          <li>Press <strong>End</strong> on the scoreboard when done.</li>
         </ul>
       </div>
 
       <div class="guide-section">
         <h3>Scoring Rules</h3>
-        <table class="guide-table">
-          <tr>
-            <td>Badminton</td>
-            <td>First to 21 (or 11), win by 2, max 30 (or 20). Rally point — winner serves. Service changes at 11 in the deciding game.</td>
-          </tr>
-          <tr>
-            <td>Tennis</td>
-            <td>0 / 15 / 30 / 40 / Deuce / Advantage. First to 6 games (win by 2); tiebreak at 6-6. Server alternates each game.</td>
-          </tr>
-          <tr>
-            <td>Squash</td>
-            <td>First to 11, win by 2, no maximum. Rally point — winner serves. Best of 5.</td>
-          </tr>
-          <tr>
-            <td>Table Tennis</td>
-            <td>First to 11, win by 2, no maximum. Service alternates every 2 points (every 1 point from 10-10).</td>
-          </tr>
-        </table>
-      </div>
-
-      <div class="guide-section">
-        <h3>Badminton Session Mode</h3>
         <ul>
-          <li>Select <strong>Session</strong> under Mode to play unlimited games — no match limit.</li>
-          <li>After each game, an overlay shows the winner and running tally. Press any clicker button to start the next game immediately.</li>
-          <li>Each game is saved to history individually as it finishes.</li>
-          <li>Press <strong>End Session</strong> in the scoreboard header when done — takes you straight to Season Stats.</li>
-        </ul>
-      </div>
-
-      <div class="guide-section">
-        <h3>Match End (Best Of mode)</h3>
-        <ul>
-          <li><strong>Rematch</strong> — swaps who serves first, resets scores, keeps the same players.</li>
-          <li><strong>New Match</strong> — returns to this setup page.</li>
-          <li>Completed matches are saved automatically and appear in <em>Season Stats</em>.</li>
+          <li>First to 21 (or 11), win by 2, max 30 (or 20).</li>
+          <li>Rally point — winner of each rally serves next.</li>
         </ul>
       </div>
 
       <div class="guide-section">
         <h3>Season Stats</h3>
         <ul>
-          <li>Filter standings and head-to-head by sport using the dropdown.</li>
-          <li><strong>Export</strong> downloads a JSON backup of all players and match history.</li>
-          <li><strong>Import</strong> merges a backup file — duplicate matches are skipped, so you can import from multiple devices safely.</li>
+          <li><strong>Export</strong> downloads a JSON backup of all history.</li>
+          <li><strong>Import</strong> merges a backup — duplicates are skipped.</li>
         </ul>
       </div>
     </div>
@@ -130,30 +106,25 @@
       <button class="btn btn-secondary" onclick="addPlayer()" style="white-space:nowrap">Add</button>
     </div>
     <ul class="player-list" id="player-list"></ul>
-    <div style="margin-top:1.5vh;font-size:1.8vh;color:var(--text-muted)">
-      Tap a player to select as
-      <span style="color:var(--accent);font-weight:700">P1</span> (first tap) or
-      <span style="color:var(--success);font-weight:700">P2</span> (second tap).
-      Selected:
-      <span id="selected-display">—</span>
-    </div>
+    <div id="selection-hint" style="margin-top:1.5vh;font-size:1.8vh;color:var(--text-muted)"></div>
   </div>
 
-  <!-- Sport -->
+  <!-- Format -->
   <div class="section">
-    <span class="section-label">Sport</span>
-    <div class="sport-grid">
-      <div class="sport-card" data-sport="badminton" onclick="selectSport('badminton')">🏸 Badminton</div>
-      <div class="sport-card" data-sport="tennis"    onclick="selectSport('tennis')">🎾 Tennis</div>
-      <div class="sport-card" data-sport="squash"    onclick="selectSport('squash')">🟡 Squash</div>
-      <div class="sport-card" data-sport="tabletennis" onclick="selectSport('tabletennis')">🏓 Table Tennis</div>
+    <span class="section-label">Format</span>
+    <div class="variant-row">
+      <button class="variant-btn selected" id="fmt-singles" onclick="selectFormat('singles')">Singles</button>
+      <button class="variant-btn" id="fmt-doubles" onclick="selectFormat('doubles')">Doubles</button>
     </div>
   </div>
 
-  <!-- Variants -->
-  <div class="section" id="variants-section" style="display:none">
-    <span class="section-label" id="variants-label">Best Of</span>
-    <div class="variant-row" id="variants-row"></div>
+  <!-- Points to Win -->
+  <div class="section">
+    <span class="section-label">Points to Win</span>
+    <div class="variant-row">
+      <button class="variant-btn selected" id="pts-21" onclick="selectTargetScore(21)">Play to 21</button>
+      <button class="variant-btn" id="pts-11" onclick="selectTargetScore(11)">Play to 11</button>
+    </div>
   </div>
 
   <!-- Key Mapping -->
@@ -161,12 +132,12 @@
     <span class="section-label">Key Mapping</span>
     <div class="keymap-row">
       <div class="key-capture">
-        <span style="font-size:1.8vh;color:var(--text-muted)">Button 1 → <span id="key1-player-label" style="color:var(--accent)">Player 1</span></span>
+        <span style="font-size:1.8vh;color:var(--text-muted)">Button 1 → <span id="key1-player-label" style="color:var(--accent)">Left side</span></span>
         <div class="key-display" id="key1-display">ArrowLeft</div>
         <button class="btn btn-secondary" onclick="captureKeyFor(1)">Set Key</button>
       </div>
       <div class="key-capture">
-        <span style="font-size:1.8vh;color:var(--text-muted)">Button 2 → <span id="key2-player-label" style="color:var(--success)">Player 2</span></span>
+        <span style="font-size:1.8vh;color:var(--text-muted)">Button 2 → <span id="key2-player-label" style="color:var(--success)">Right side</span></span>
         <div class="key-display" id="key2-display">ArrowRight</div>
         <button class="btn btn-secondary" onclick="captureKeyFor(2)">Set Key</button>
       </div>
@@ -186,37 +157,38 @@
 
 // ── State ──────────────────────────────────────────────────────────────────
 let players = [];
-let selectedP1 = null;  // player id
-let selectedP2 = null;
-let selectedSport = null;
-let selectedBestOf = 3;
-let selectedTargetScore = null; // null = use sport default
-let selectedMode = 'session';   // 'session' | 'bestof' — only used for badminton
+let selectedFormat = 'singles';
+let selectedTargetScore = 21;
 let key1 = 'ArrowLeft';
 let key2 = 'ArrowRight';
 
-// ── Variants config ────────────────────────────────────────────────────────
-const SPORT_VARIANTS = {
-  badminton:   { modes: ['session', 'bestof'], targetScores: [21, 11] },
-  tennis:      { label: 'Best Of', options: [3, 5] },
-  squash:      { label: 'Best Of', options: [5] },
-  tabletennis: { label: 'Best Of', options: [5, 7] },
-};
+// Singles
+let selectedP1 = null;
+let selectedP2 = null;
+
+// Doubles
+let selectedTeam1 = [];
+let selectedTeam2 = [];
 
 // ── Init ───────────────────────────────────────────────────────────────────
 function init() {
   players = getAllPlayers();
   renderPlayerList();
 
-  // Restore last config if present
   try {
     const cfg = JSON.parse(localStorage.getItem('scoreboard.config') || 'null');
     if (cfg) {
-      if (cfg.playerIds && cfg.playerIds[0]) selectedP1 = cfg.playerIds[0];
-      if (cfg.playerIds && cfg.playerIds[1]) selectedP2 = cfg.playerIds[1];
-      if (cfg.sport) selectSport(cfg.sport);
-      if (cfg.sessionMode !== undefined) selectMode(cfg.sessionMode ? 'session' : 'bestof');
-      if (cfg.bestOf) selectBestOf(cfg.bestOf);
+      if (cfg.doubles) {
+        selectFormat('doubles');
+        selectedTeam1 = cfg.team1 || [];
+        selectedTeam2 = cfg.team2 || [];
+      } else {
+        selectFormat('singles');
+        if (cfg.playerIds) {
+          selectedP1 = cfg.playerIds[0] || null;
+          selectedP2 = cfg.playerIds[1] || null;
+        }
+      }
       if (cfg.targetScore) selectTargetScore(cfg.targetScore);
       if (cfg.keymap) {
         key1 = cfg.keymap.button1 || key1;
@@ -251,19 +223,24 @@ function addPlayer() {
 }
 
 function selectPlayer(id) {
-  if (selectedP1 === id) {
-    // Deselect P1
-    selectedP1 = null;
-  } else if (selectedP2 === id) {
-    // Deselect P2
-    selectedP2 = null;
-  } else if (!selectedP1) {
-    selectedP1 = id;
-  } else if (!selectedP2) {
-    selectedP2 = id;
+  if (selectedFormat === 'singles') {
+    if (selectedP1 === id)      { selectedP1 = null; }
+    else if (selectedP2 === id) { selectedP2 = null; }
+    else if (!selectedP1)       { selectedP1 = id; }
+    else if (!selectedP2)       { selectedP2 = id; }
+    else                        { selectedP1 = id; }
   } else {
-    // Both selected: replace P1, shift old P1 to... deselect P1 and set new
-    selectedP1 = id;
+    const inT1 = selectedTeam1.includes(id);
+    const inT2 = selectedTeam2.includes(id);
+    if (inT1) {
+      selectedTeam1 = selectedTeam1.filter(x => x !== id);
+    } else if (inT2) {
+      selectedTeam2 = selectedTeam2.filter(x => x !== id);
+    } else if (selectedTeam1.length < 2) {
+      selectedTeam1 = [...selectedTeam1, id];
+    } else if (selectedTeam2.length < 2) {
+      selectedTeam2 = [...selectedTeam2, id];
+    }
   }
   renderPlayerList();
   updateKeyLabels();
@@ -271,16 +248,19 @@ function selectPlayer(id) {
 
 function renderPlayerList() {
   const ul = document.getElementById('player-list');
-  const p1 = players.find(p => p.id === selectedP1);
-  const p2 = players.find(p => p.id === selectedP2);
 
   ul.innerHTML = players.length === 0
     ? '<li style="color:var(--text-muted);cursor:default">No players yet — add one above</li>'
     : players.map(p => {
         let badge = '';
-        if (p.id === selectedP1) badge = '<span class="badge badge-p1">P1</span>';
-        else if (p.id === selectedP2) badge = '<span class="badge badge-p2">P2</span>';
-        const cls = p.id === selectedP1 ? 'selected-p1' : p.id === selectedP2 ? 'selected-p2' : '';
+        let cls = '';
+        if (selectedFormat === 'singles') {
+          if (p.id === selectedP1)      { badge = '<span class="badge badge-p1">P1</span>'; cls = 'selected-p1'; }
+          else if (p.id === selectedP2) { badge = '<span class="badge badge-p2">P2</span>'; cls = 'selected-p2'; }
+        } else {
+          if (selectedTeam1.includes(p.id))      { badge = '<span class="badge badge-p1">T1</span>'; cls = 'selected-p1'; }
+          else if (selectedTeam2.includes(p.id)) { badge = '<span class="badge badge-p2">T2</span>'; cls = 'selected-p2'; }
+        }
         return `<li class="${cls}" onclick="selectPlayer('${p.id}')">
           <span>${escHtml(p.name)}</span>
           ${badge}
@@ -288,24 +268,35 @@ function renderPlayerList() {
         </li>`;
       }).join('');
 
-  const disp = document.getElementById('selected-display');
-  const p1n = p1 ? `<span style="color:var(--accent);font-weight:700">${escHtml(p1.name)}</span>` : '—';
-  const p2n = p2 ? `<span style="color:var(--success);font-weight:700">${escHtml(p2.name)}</span>` : '—';
-  disp.innerHTML = `P1: ${p1n} &nbsp;·&nbsp; P2: ${p2n}`;
+  const hint = document.getElementById('selection-hint');
+  if (selectedFormat === 'singles') {
+    const p1 = players.find(p => p.id === selectedP1);
+    const p2 = players.find(p => p.id === selectedP2);
+    const p1n = p1 ? `<span style="color:var(--accent);font-weight:700">${escHtml(p1.name)}</span>` : '—';
+    const p2n = p2 ? `<span style="color:var(--success);font-weight:700">${escHtml(p2.name)}</span>` : '—';
+    hint.innerHTML = `Tap to select &nbsp; P1: ${p1n} &nbsp;·&nbsp; P2: ${p2n}`;
+  } else {
+    const t1names = selectedTeam1.map(id => players.find(p => p.id === id)?.name || '?');
+    const t2names = selectedTeam2.map(id => players.find(p => p.id === id)?.name || '?');
+    const t1n = t1names.length
+      ? `<span style="color:var(--accent);font-weight:700">${t1names.map(escHtml).join(' & ')}</span>`
+      : `<span style="color:var(--text-muted)">pick 2</span>`;
+    const t2n = t2names.length
+      ? `<span style="color:var(--success);font-weight:700">${t2names.map(escHtml).join(' & ')}</span>`
+      : `<span style="color:var(--text-muted)">pick 2</span>`;
+    hint.innerHTML = `Team 1: ${t1n} &nbsp;·&nbsp; Team 2: ${t2n}`;
+  }
 }
 
 function startEditPlayer(id) {
   const player = players.find(p => p.id === id);
   if (!player) return;
-
-  // Find the <li> for this player and replace its content with an input
   const ul = document.getElementById('player-list');
   const li = [...ul.querySelectorAll('li')].find(el =>
     el.querySelector('.edit-player-btn')?.getAttribute('onclick')?.includes(id)
   );
   if (!li) return;
-
-  li.onclick = null; // disable select while editing
+  li.onclick = null;
   li.innerHTML = `
     <input type="text" class="edit-player-input" value="${escHtml(player.name)}"
            id="edit-input-${id}" style="flex:1">
@@ -328,7 +319,6 @@ function confirmEditPlayer(id) {
   if (!input) return;
   const newName = input.value.trim();
   if (!newName) return;
-
   const player = players.find(p => p.id === id);
   if (!player) return;
   player.name = newName;
@@ -338,92 +328,38 @@ function confirmEditPlayer(id) {
 }
 
 function updateKeyLabels() {
-  const p1 = players.find(p => p.id === selectedP1);
-  const p2 = players.find(p => p.id === selectedP2);
-  document.getElementById('key1-player-label').textContent = p1 ? p1.name : 'Player 1';
-  document.getElementById('key2-player-label').textContent = p2 ? p2.name : 'Player 2';
+  if (selectedFormat === 'singles') {
+    const p1 = players.find(p => p.id === selectedP1);
+    const p2 = players.find(p => p.id === selectedP2);
+    document.getElementById('key1-player-label').textContent = p1 ? p1.name : 'Left side';
+    document.getElementById('key2-player-label').textContent = p2 ? p2.name : 'Right side';
+  } else {
+    const t1names = selectedTeam1.map(id => players.find(p => p.id === id)?.name).filter(Boolean);
+    const t2names = selectedTeam2.map(id => players.find(p => p.id === id)?.name).filter(Boolean);
+    document.getElementById('key1-player-label').textContent = t1names.length ? t1names.join(' & ') : 'Team 1';
+    document.getElementById('key2-player-label').textContent = t2names.length ? t2names.join(' & ') : 'Team 2';
+  }
 }
 
 function escHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// ── Sport ──────────────────────────────────────────────────────────────────
-function selectSport(sport) {
-  selectedSport = sport;
-  selectedTargetScore = null;
-  selectedMode = 'session'; // default for badminton
-  document.querySelectorAll('.sport-card').forEach(el => {
-    el.classList.toggle('selected', el.dataset.sport === sport);
-  });
-  renderVariants();
-}
-
-function renderVariants() {
-  const v = SPORT_VARIANTS[selectedSport];
-  const sec = document.getElementById('variants-section');
-  if (!v) { sec.style.display = 'none'; return; }
-
-  const row = document.getElementById('variants-row');
-  let html = '';
-
-  // Badminton: Mode selector (Session vs Best of)
-  if (v.modes) {
-    html += `<div style="font-size:1.6vh;color:var(--text-muted);margin-bottom:0.6vh;width:100%">Mode</div>`;
-    html += `<button class="variant-btn ${selectedMode === 'session' ? 'selected' : ''}"
-                     onclick="selectMode('session')">Session</button>`;
-    html += `<button class="variant-btn ${selectedMode === 'bestof' ? 'selected' : ''}"
-                     onclick="selectMode('bestof')">Best of 3</button>`;
-    html += `<div style="width:100%;margin-top:0.8vh"></div>`;
-  }
-
-  // Best Of (non-badminton sports with multiple options)
-  if (v.options && v.options.length > 1) {
-    html += `<div style="font-size:1.6vh;color:var(--text-muted);margin-bottom:0.6vh;width:100%">Best Of</div>`;
-    html += v.options.map(n =>
-      `<button class="variant-btn ${selectedBestOf === n ? 'selected' : ''}"
-               onclick="selectBestOf(${n})">Best of ${n}</button>`
-    ).join('');
-    html += `<div style="width:100%;margin-top:0.8vh"></div>`;
-  }
-
-  // Points to Win (badminton)
-  if (v.targetScores) {
-    const cur = selectedTargetScore ?? v.targetScores[0];
-    html += `<div style="font-size:1.6vh;color:var(--text-muted);margin-bottom:0.6vh;width:100%">Points to Win</div>`;
-    html += v.targetScores.map(n =>
-      `<button class="variant-btn ${cur === n ? 'selected' : ''}"
-               onclick="selectTargetScore(${n})">Play to ${n}</button>`
-    ).join('');
-  }
-
-  row.innerHTML = html;
-
-  // Apply defaults if needed
-  if (v.options && !v.options.includes(selectedBestOf)) selectBestOf(v.options[0]);
-  if (v.targetScores && !v.targetScores.includes(selectedTargetScore)) selectTargetScore(v.targetScores[0]);
-  sec.style.display = 'block';
-}
-
-function selectMode(mode) {
-  selectedMode = mode;
-  renderVariants();
-}
-
-function selectBestOf(n) {
-  selectedBestOf = n;
-  document.querySelectorAll('.variant-btn').forEach(el => {
-    if (el.textContent.trim().startsWith('Best of'))
-      el.classList.toggle('selected', el.textContent.trim() === `Best of ${n}`);
-  });
+// ── Format & Score ─────────────────────────────────────────────────────────
+function selectFormat(fmt) {
+  selectedFormat = fmt;
+  document.getElementById('fmt-singles').classList.toggle('selected', fmt === 'singles');
+  document.getElementById('fmt-doubles').classList.toggle('selected', fmt === 'doubles');
+  selectedP1 = null; selectedP2 = null;
+  selectedTeam1 = []; selectedTeam2 = [];
+  renderPlayerList();
+  updateKeyLabels();
 }
 
 function selectTargetScore(n) {
   selectedTargetScore = n;
-  document.querySelectorAll('.variant-btn').forEach(el => {
-    if (el.textContent.trim().startsWith('Play to'))
-      el.classList.toggle('selected', el.textContent.trim() === `Play to ${n}`);
-  });
+  document.getElementById('pts-21').classList.toggle('selected', n === 21);
+  document.getElementById('pts-11').classList.toggle('selected', n === 11);
 }
 
 // ── Key capture ────────────────────────────────────────────────────────────
@@ -454,47 +390,59 @@ function startMatch() {
   const errEl = document.getElementById('start-error');
   errEl.style.display = 'none';
 
-  if (!selectedP1 || !selectedP2) {
-    errEl.textContent = 'Please select two players.';
-    errEl.style.display = 'block';
-    return;
-  }
-  if (selectedP1 === selectedP2) {
-    errEl.textContent = 'Please select two different players.';
-    errEl.style.display = 'block';
-    return;
-  }
-  if (!selectedSport) {
-    errEl.textContent = 'Please select a sport.';
-    errEl.style.display = 'block';
-    return;
-  }
   if (key1 === key2) {
     errEl.textContent = 'Button 1 and Button 2 must use different keys.';
     errEl.style.display = 'block';
     return;
   }
 
-  const p1 = players.find(p => p.id === selectedP1);
-  const p2 = players.find(p => p.id === selectedP2);
+  let config;
 
-  const v = SPORT_VARIANTS[selectedSport];
-  const isSession = v?.modes && selectedMode === 'session';
-  const config = {
-    sport: selectedSport,
-    sessionMode: isSession || false,
-    bestOf: isSession ? null : selectedBestOf,
-    targetScore: v?.targetScores ? (selectedTargetScore ?? v.targetScores[0]) : undefined,
-    playerIds: [selectedP1, selectedP2],
-    playerNames: [p1.name, p2.name],
-    keymap: { button1: key1, button2: key2 },
-    initialServer: 0,
-  };
+  if (selectedFormat === 'singles') {
+    if (!selectedP1 || !selectedP2) {
+      errEl.textContent = 'Please select two players.';
+      errEl.style.display = 'block';
+      return;
+    }
+    const p1 = players.find(p => p.id === selectedP1);
+    const p2 = players.find(p => p.id === selectedP2);
+    config = {
+      sport: 'badminton',
+      doubles: false,
+      sessionMode: true,
+      targetScore: selectedTargetScore,
+      playerIds: [selectedP1, selectedP2],
+      playerNames: [p1.name, p2.name],
+      keymap: { button1: key1, button2: key2 },
+      initialServer: 0,
+    };
+  } else {
+    if (selectedTeam1.length < 2 || selectedTeam2.length < 2) {
+      errEl.textContent = 'Please select 2 players for each team.';
+      errEl.style.display = 'block';
+      return;
+    }
+    const t1names = selectedTeam1.map(id => players.find(p => p.id === id)?.name || '?');
+    const t2names = selectedTeam2.map(id => players.find(p => p.id === id)?.name || '?');
+    const team1Id = [...selectedTeam1].sort().join(':');
+    const team2Id = [...selectedTeam2].sort().join(':');
+    config = {
+      sport: 'badminton',
+      doubles: true,
+      sessionMode: true,
+      targetScore: selectedTargetScore,
+      team1: selectedTeam1,
+      team2: selectedTeam2,
+      playerIds: [team1Id, team2Id],
+      playerNames: [t1names.join(' & '), t2names.join(' & ')],
+      keymap: { button1: key1, button2: key2 },
+      initialServer: 0,
+    };
+  }
 
   localStorage.setItem('scoreboard.config', JSON.stringify(config));
   localStorage.removeItem('scoreboard.state');
   localStorage.removeItem('scoreboard.undoStack');
-
   window.location.href = 'scoreboard.html';
 }
 
@@ -512,7 +460,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeGuide();
 });
 
-// ── Handle Enter in name field ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('new-player-name').addEventListener('keydown', e => {
     if (e.key === 'Enter') addPlayer();

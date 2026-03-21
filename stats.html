@@ -13,13 +13,6 @@
   <header>
     <h1>Season Statistics</h1>
     <div class="stats-controls">
-      <select id="sport-filter" onchange="renderAll()">
-        <option value="">All Sports</option>
-        <option value="badminton">Badminton</option>
-        <option value="tennis">Tennis</option>
-        <option value="squash">Squash</option>
-        <option value="tabletennis">Table Tennis</option>
-      </select>
       <button class="btn btn-secondary" onclick="exportToJSON()">Export</button>
       <button class="btn btn-secondary" onclick="triggerImport()">Import</button>
       <input type="file" id="import-file" accept=".json" onchange="handleImport(event)">
@@ -57,16 +50,11 @@
 <script>
 'use strict';
 
-function getSportFilter() {
-  return document.getElementById('sport-filter').value || null;
-}
-
 function renderAll() {
-  const sport = getSportFilter();
   const history = getAllMatches();
-  renderStandings(history, sport);
-  renderH2H(history, sport);
-  renderRecent(history, sport);
+  renderStandings(history, null);
+  renderH2H(history, null);
+  renderRecent(history);
 }
 
 // ── Standings ─────────────────────────────────────────────────────────────
@@ -145,10 +133,9 @@ function renderH2H(history, sport) {
 }
 
 // ── Recent Matches ────────────────────────────────────────────────────────
-function renderRecent(history, sport) {
+function renderRecent(history) {
   const container = document.getElementById('recent-container');
-  const filtered = (sport ? history.filter(m => m.sport === sport) : history)
-    .slice().reverse().slice(0, 30);
+  const filtered = history.slice().reverse().slice(0, 30);
 
   if (!filtered.length) {
     container.innerHTML = '<div class="empty-state">No matches recorded yet.</div>';
@@ -163,8 +150,7 @@ function renderRecent(history, sport) {
     const date = m.date ? new Date(m.date).toLocaleDateString(undefined, { month:'short', day:'numeric' }) : '';
     const setsStr = `${m.setsWon[0]}-${m.setsWon[1]}`;
     const gamesStr = (m.gamesHistory || []).map(g => `${g.points[0]}-${g.points[1]}`).join(', ');
-    const sportName = { badminton:'Badminton', tennis:'Tennis', squash:'Squash', tabletennis:'Table Tennis' }[m.sport] || m.sport;
-    const modeLabel = m.sessionMode ? 'Session' : (m.bestOf ? `Best of ${m.bestOf}` : '');
+    const modeLabel = m.doubles ? 'Doubles' : 'Singles';
     const durLabel = m.durationSeconds ? fmtTime(m.durationSeconds) : '';
     const avgRallyLabel = (() => {
       const r = m.pointDurations;
@@ -175,8 +161,7 @@ function renderRecent(history, sport) {
     return `<div class="match-item">
       <div class="match-header">
         <span>${date}</span>
-        <span class="sport-badge ${m.sport}">${sportName}</span>
-        ${modeLabel ? `<span>${modeLabel}</span>` : ''}
+        <span class="sport-badge badminton">${modeLabel}</span>
         ${durLabel ? `<span>⏱ ${durLabel}</span>` : ''}
         ${avgRallyLabel ? `<span>${avgRallyLabel}</span>` : ''}
       </div>
