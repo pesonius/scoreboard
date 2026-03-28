@@ -1,0 +1,8 @@
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+*.xccheckout
+
+# Xcode project dir has its own git repo — track source files only
+xcode/
