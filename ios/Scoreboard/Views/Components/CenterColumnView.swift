@@ -6,41 +6,40 @@ struct CenterColumnView: View {
     let onEndSession: () -> Void
 
     var body: some View {
-        VStack(spacing: 6) {
-            // Sport icon
-            Text("🏸")
-                .font(.system(size: 28))
+        VStack(spacing: 0) {
+            // TOP: sport icon, game label, sets tally, timers
+            VStack(spacing: 4) {
+                Text("🏸")
+                    .font(.system(size: 28))
 
-            // Game label
-            Text(vm.gameLabel)
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(Color(hex: "#aaaaaa"))
+                Text(vm.gameLabel)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(Color(hex: "#aaaaaa"))
 
-            // Sets tally
-            HStack(spacing: 4) {
-                Text("\(vm.state.setsWon[0])")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
-                Text(":")
-                    .font(.system(size: 20, weight: .light))
-                    .foregroundStyle(Color(hex: "#666666"))
-                Text("\(vm.state.setsWon[1])")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
+                HStack(spacing: 4) {
+                    Text("\(vm.state.setsWon[0])")
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                    Text(":")
+                        .font(.system(size: 20, weight: .light))
+                        .foregroundStyle(Color(hex: "#666666"))
+                    Text("\(vm.state.setsWon[1])")
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                }
+
+                VStack(spacing: 2) {
+                    timerRow(value: vm.sessionTime, label: "session")
+                    timerRow(value: vm.gameTime,    label: "game")
+                    timerRow(value: vm.rallyTime,   label: "rally")
+                }
+                .padding(.top, 4)
             }
+            .padding(.top, 10)
 
             Spacer()
 
-            // Timers
-            VStack(spacing: 2) {
-                timerRow(value: vm.sessionTime, label: "session")
-                timerRow(value: vm.gameTime,    label: "game")
-                timerRow(value: vm.rallyTime,   label: "rally")
-            }
-
-            Spacer()
-
-            // Buttons
+            // BOTTOM: buttons
             VStack(spacing: 6) {
                 Button(action: { vm.handleUndo() }) {
                     Label("Undo", systemImage: "arrow.uturn.backward")
@@ -51,13 +50,11 @@ struct CenterColumnView: View {
                 Button("Setup", action: onSetup)
                     .buttonStyle(CourtButtonStyle(dim: true))
 
-                if vm.config.sessionMode {
-                    Button("End", action: onEndSession)
-                        .buttonStyle(CourtButtonStyle(danger: true))
-                }
+                Button("End", action: onEndSession)
+                    .buttonStyle(CourtButtonStyle(danger: true))
             }
+            .padding(.bottom, 10)
         }
-        .padding(.vertical, 10)
         .padding(.horizontal, 4)
         .background(Color(hex: "#0d0d0d"))
     }

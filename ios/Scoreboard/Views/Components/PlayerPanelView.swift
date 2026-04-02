@@ -1,11 +1,12 @@
 import SwiftUI
 
 struct PlayerPanelView: View {
-    let name:      String
-    let score:     String
-    let isServer:  Bool
-    let isRight:   Bool   // right side flips serve icon to the left
-    let undoFlash: Bool
+    let name:        String
+    let partnerName: String   // empty for singles
+    let score:       String
+    let isServer:    Bool
+    let isRight:     Bool
+    let undoFlash:   Bool
 
     var body: some View {
         GeometryReader { geo in
@@ -16,24 +17,18 @@ struct PlayerPanelView: View {
                         .animation(.easeInOut(duration: 0.2), value: isServer)
                     HStack {
                         if isRight && isServer {
-                            shuttleIcon
-                                .padding(.leading, 8)
+                            shuttleIcon.padding(.leading, 8)
                         }
                         Spacer()
-                        Text(name)
-                            .font(.system(size: min(geo.size.width * 0.07, 26), weight: .semibold))
-                            .foregroundStyle(.white)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
+                        nameStack(geo: geo)
                         Spacer()
                         if !isRight && isServer {
-                            shuttleIcon
-                                .padding(.trailing, 8)
+                            shuttleIcon.padding(.trailing, 8)
                         }
                     }
                     .padding(.horizontal, 4)
                 }
-                .frame(height: max(geo.size.height * 0.12, 36))
+                .frame(height: nameBarHeight(geo: geo))
 
                 // Score
                 Spacer()
@@ -52,6 +47,36 @@ struct PlayerPanelView: View {
             }
         }
         .background(Color(hex: "#111111"))
+    }
+
+    @ViewBuilder
+    private func nameStack(geo: GeometryProxy) -> some View {
+        let isDoubles = !partnerName.isEmpty
+        if isDoubles {
+            VStack(spacing: 1) {
+                Text(name)
+                    .font(.system(size: min(geo.size.width * 0.055, 20), weight: .semibold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                Text(partnerName)
+                    .font(.system(size: min(geo.size.width * 0.055, 20), weight: .semibold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+            }
+        } else {
+            Text(name)
+                .font(.system(size: min(geo.size.width * 0.07, 26), weight: .semibold))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+        }
+    }
+
+    private func nameBarHeight(geo: GeometryProxy) -> CGFloat {
+        let base = max(geo.size.height * 0.12, 36)
+        return partnerName.isEmpty ? base : max(geo.size.height * 0.16, 52)
     }
 
     private var shuttleIcon: some View {

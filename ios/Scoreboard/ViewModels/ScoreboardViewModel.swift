@@ -9,7 +9,6 @@ final class ScoreboardViewModel: ObservableObject {
 
     // Overlay flags
     @Published var showGameOverOverlay = false
-    @Published var showWinnerOverlay   = false
 
     // Hint
     @Published var showHint   = true
@@ -28,6 +27,7 @@ final class ScoreboardViewModel: ObservableObject {
 
     let inputManager: InputManager
     let volumeManager = VolumeInputManager()
+    private let sessionId = UUID().uuidString
     private var timerSub: AnyCancellable?
     private var hintTimer: Timer?
     private let storage = AppStorage.shared
@@ -38,7 +38,7 @@ final class ScoreboardViewModel: ObservableObject {
         self.inputManager = InputManager(keymap: config.keymap)
         inputManager.onPoint = { [weak self] p in self?.handlePoint(p) }
         inputManager.onUndo  = { [weak self] in self?.handleUndo() }
-        // Top button = mouse click (cursor at left) → P1 via tap gesture
+        // Top button = mouse click → P1 via tap gesture
         // Bottom button = volume UP → P2
         volumeManager.onVolumeUp   = { [weak self] in self?.handleVolumePoint(1) }
         volumeManager.onVolumeDown = { [weak self] in self?.handleVolumePoint(0) }
@@ -52,11 +52,7 @@ final class ScoreboardViewModel: ObservableObject {
 
     var displayScore: DisplayScore { BadmintonEngine.getDisplayScore(state) }
 
-    var gameLabel: String {
-        config.sessionMode
-            ? "Game \(state.currentGame)"
-            : "Game \(state.currentGame) of \(state.bestOf ?? config.bestOf)"
-    }
+    var gameLabel: String { "Game \(state.currentGame)" }
 
     // MARK: - Scoring
 
@@ -88,27 +84,18 @@ final class ScoreboardViewModel: ObservableObject {
     }
 
     private func scorePoint(_ player: Int) {
+        if state.gameOver { continueSession(); return }
 
-        if state.gameOver  { continueSession(); return }
-        if state.matchOver { return }
-
-        let now       = Date()
-        let gameStart = state.gameStartedAt ?? state.startedAt
+        let now        = Date()
+        let gameStart  = state.gameStartedAt ?? state.startedAt
         let rallyStart = state.lastPointAt ?? gameStart
         let rallySeconds = Int(now.timeIntervalSince(rallyStart).rounded())
 
-        let prevGame = state.currentGame
         storage.pushUndo(state)
 
         var next = BadmintonEngine.applyPoint(state, player: player)
         next.lastPointAt = now
         next.pointDurations.append(rallySeconds)
-
-        if !config.sessionMode && next.currentGame != prevGame && !next.matchOver {
-            next.gameStartedAt = now
-            next.lastPointAt   = nil
-            next.pointDurations = []
-        }
 
         state = next
         storage.saveState(state)
@@ -116,9 +103,6 @@ final class ScoreboardViewModel: ObservableObject {
         if state.gameOver {
             saveGameToHistory()
             showGameOverOverlay = true
-        } else if state.matchOver {
-            saveMatchToHistory()
-            showWinnerOverlay = true
         }
 
         fadeHintNow()
@@ -129,7 +113,6 @@ final class ScoreboardViewModel: ObservableObject {
         guard let prev = storage.popUndo() else { return }
         state = prev
         storage.saveState(state)
-        showWinnerOverlay = false
         flashUndo()
     }
 
@@ -149,23 +132,6 @@ final class ScoreboardViewModel: ObservableObject {
         storage.clearState()
     }
 
-    // MARK: - Best-of flow
-
-    func rematch() {
-        var newConfig = config
-        newConfig.initialServer = 1 - config.initialServer
-        config = newConfig
-        storage.saveConfig(config)
-        state = BadmintonEngine.initState(config: config)
-        storage.saveState(state)
-        storage.clearUndoStack()
-        showWinnerOverlay = false
-    }
-
-    func newMatch() {
-        storage.clearState()
-    }
-
     // MARK: - History
 
     private func saveGameToHistory() {
@@ -173,6 +139,7 @@ final class ScoreboardViewModel: ObservableObject {
         let dur = Int(Date().timeIntervalSince(state.gameStartedAt ?? state.startedAt).rounded())
         storage.appendMatch(MatchRecord(
             id: UUID().uuidString,
+            sessionId: sessionId,
             date: Date(),
             sport: "badminton",
             sessionMode: true,
@@ -186,25 +153,12 @@ final class ScoreboardViewModel: ObservableObject {
         ))
     }
 
-    private func saveMatchToHistory() {
-        storage.appendMatch(MatchRecord(
-            id: UUID().uuidString,
-            date: state.startedAt,
-            sport: "badminton",
-            sessionMode: false,
-            bestOf: state.bestOf,
-            players: makePlayers(),
-            winner: state.winner ?? 0,
-            setsWon: state.setsWon,
-            gamesHistory: state.gamesHistory.map { .init(points: $0.points) },
-            durationSeconds: Int(Date().timeIntervalSince(state.startedAt).rounded()),
-            pointDurations: state.pointDurations
-        ))
-    }
-
     private func makePlayers() -> [MatchRecord.MatchPlayer] {
         config.playerIds.enumerated().map { i, id in
-            .init(id: id, name: config.playerNames[i])
+            let name = config.partnerNames[i].isEmpty
+                ? config.playerNames[i]
+                : "\(config.playerNames[i]) / \(config.partnerNames[i])"
+            return .init(id: id, name: name)
         }
     }
 
@@ -220,7 +174,7 @@ final class ScoreboardViewModel: ObservableObject {
     private func tick() {
         let now = Date()
         sessionTime = fmt(now.timeIntervalSince(state.startedAt))
-        guard !state.gameOver && !state.matchOver else { return }
+        guard !state.gameOver else { return }
         let gs = state.gameStartedAt ?? state.startedAt
         gameTime  = fmt(now.timeIntervalSince(gs))
         let rs = state.lastPointAt ?? gs

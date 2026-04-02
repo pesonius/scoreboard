@@ -4,6 +4,7 @@ import SwiftUI
 
 struct GameOverOverlayView: View {
     @ObservedObject var vm: ScoreboardViewModel
+    let onSetup: () -> Void
 
     var body: some View {
         ZStack {
@@ -15,7 +16,7 @@ struct GameOverOverlayView: View {
                     .foregroundStyle(Color(hex: "#aaaaaa"))
 
                 if let w = vm.state.lastGameWinner {
-                    Text(vm.config.playerNames[w])
+                    Text(teamName(w))
                         .font(.system(size: 40, weight: .bold))
                         .foregroundStyle(Color(hex: "#4cff4c"))
                 }
@@ -26,55 +27,27 @@ struct GameOverOverlayView: View {
                         .foregroundStyle(.white)
                 }
 
-                let names = vm.config.playerNames
-                Text("\(names[0])  \(vm.state.setsWon[0]) – \(vm.state.setsWon[1])  \(names[1])")
+                Text("\(teamName(0))  \(vm.state.setsWon[0]) – \(vm.state.setsWon[1])  \(teamName(1))")
                     .font(.system(size: 16))
                     .foregroundStyle(Color(hex: "#aaaaaa"))
 
-                Text("Press any button to continue")
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color(hex: "#666666"))
-                    .padding(.top, 8)
-            }
-            .padding(40)
-        }
-        .ignoresSafeArea()
-        .onTapGesture { vm.continueSession() }
-    }
-}
-
-// MARK: - Winner Overlay (best-of mode)
-
-struct WinnerOverlayView: View {
-    @ObservedObject var vm: ScoreboardViewModel
-    let onNewMatch: () -> Void
-
-    var body: some View {
-        ZStack {
-            Color.black.opacity(0.85)
-
-            VStack(spacing: 20) {
-                Text("Winner")
-                    .font(.system(size: 20, weight: .medium))
-                    .foregroundStyle(Color(hex: "#aaaaaa"))
-
-                if let w = vm.state.winner {
-                    Text(vm.config.playerNames[w])
-                        .font(.system(size: 44, weight: .bold))
-                        .foregroundStyle(Color(hex: "#4cff4c"))
-                }
-
-                HStack(spacing: 16) {
-                    Button("Rematch") { vm.rematch() }
-                        .buttonStyle(OverlayButtonStyle(success: true))
-
-                    Button("New Match", action: onNewMatch)
+                HStack(spacing: 20) {
+                    Button("Setup") { vm.endSession(); onSetup() }
                         .buttonStyle(OverlayButtonStyle())
+                    Button("Continue") { vm.continueSession() }
+                        .buttonStyle(OverlayButtonStyle(success: true))
                 }
+                .padding(.top, 8)
             }
             .padding(40)
         }
         .ignoresSafeArea()
+    }
+
+    private func teamName(_ index: Int) -> String {
+        let name    = vm.config.playerNames[index]
+        let partner = vm.config.partnerNames[index]
+        return partner.isEmpty ? name : "\(name) / \(partner)"
     }
 }
 

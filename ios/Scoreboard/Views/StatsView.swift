@@ -17,17 +17,19 @@ struct StatsView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 Picker("", selection: $selectedTab) {
-                    Text("Standings").tag(0)
-                    Text("History").tag(1)
-                    Text("H2H").tag(2)
+                    Text("Sessions").tag(0)
+                    Text("Standings").tag(1)
+                    Text("History").tag(2)
+                    Text("H2H").tag(3)
                 }
                 .pickerStyle(.segmented)
                 .padding()
 
                 switch selectedTab {
-                case 0: standingsTab
-                case 1: historyTab
-                case 2: h2hTab
+                case 0: sessionsTab
+                case 1: standingsTab
+                case 2: historyTab
+                case 3: h2hTab
                 default: EmptyView()
                 }
             }
@@ -58,6 +60,74 @@ struct StatsView: View {
             }
         }
         .onAppear { vm.reload() }
+    }
+
+    // MARK: - Sessions tab
+
+    private var sessionsTab: some View {
+        Group {
+            if vm.sessions.isEmpty {
+                emptyState("No sessions recorded yet")
+            } else {
+                let years = Array(Set(vm.sessions.map(\.year))).sorted(by: >)
+                List {
+                    ForEach(years, id: \.self) { year in
+                        let yearSessions = vm.sessions.filter { $0.year == year }
+                        Section(header: yearHeader(year: year, sessions: yearSessions)) {
+                            ForEach(yearSessions) { session in
+                                sessionRow(session)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func yearHeader(year: Int, sessions: [SessionRecord]) -> some View {
+        let tally = sessionTally(sessions)
+        return HStack {
+            Text(String(year)).font(.headline)
+            Spacer()
+            if let t = tally {
+                Text("\(t.name0): \(t.wins0)  ·  \(t.name1): \(t.wins1)")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func sessionRow(_ s: SessionRecord) -> some View {
+        let winnerName = s.playerNames.indices.contains(s.winner) ? s.playerNames[s.winner] : "?"
+        let loserWins  = s.gamesWon[1 - s.winner]
+        let winnerWins = s.gamesWon[s.winner]
+        return HStack {
+            Text(winnerName)
+                .font(.headline)
+                .foregroundStyle(Color(hex: "#1a7a1a"))
+            Text("\(winnerWins)–\(loserWins)")
+                .font(.subheadline.monospacedDigit())
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(shortDate(s.date))
+                .font(.caption).foregroundStyle(.secondary)
+        }
+    }
+
+    private struct YearTally {
+        var name0: String; var wins0: Int
+        var name1: String; var wins1: Int
+    }
+
+    private func sessionTally(_ sessions: [SessionRecord]) -> YearTally? {
+        guard let first = sessions.first else { return nil }
+        var w = [0, 0]
+        for s in sessions where s.winner < 2 { w[s.winner] += 1 }
+        return YearTally(
+            name0: first.playerNames.indices.contains(0) ? first.playerNames[0] : "?",
+            wins0: w[0],
+            name1: first.playerNames.indices.contains(1) ? first.playerNames[1] : "?",
+            wins1: w[1]
+        )
     }
 
     // MARK: - Standings tab

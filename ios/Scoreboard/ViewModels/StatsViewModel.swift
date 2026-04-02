@@ -1,6 +1,16 @@
 import Foundation
 import Combine
 
+struct SessionRecord: Identifiable {
+    var id: String           // sessionId
+    var date: Date
+    var year: Int
+    var playerNames: [String]
+    var playerIds: [String]
+    var gamesWon: [Int]      // [side0wins, side1wins]
+    var winner: Int
+}
+
 struct Standings: Identifiable {
     var id: String
     var name: String
@@ -24,13 +34,15 @@ struct HeadToHead {
 
 final class StatsViewModel: ObservableObject {
     @Published var standings: [Standings] = []
+    @Published var sessions:  [SessionRecord] = []
     @Published var history:   [MatchRecord] = []
 
     private let storage = AppStorage.shared
 
     func reload() {
-        history  = storage.loadHistory().sorted { $0.date > $1.date }
+        history   = storage.loadHistory().sorted { $0.date > $1.date }
         standings = computeStandings()
+        sessions  = computeSessions()
     }
 
     func headToHead(id1: String, id2: String) -> HeadToHead {
@@ -56,6 +68,31 @@ final class StatsViewModel: ObservableObject {
     }
 
     // MARK: - Private
+
+    private func computeSessions() -> [SessionRecord] {
+        var groups: [String: [MatchRecord]] = [:]
+        for m in history where !m.sessionId.isEmpty {
+            groups[m.sessionId, default: []].append(m)
+        }
+        let cal = Calendar.current
+        return groups.compactMap { sessionId, matches in
+            let sorted = matches.sorted { $0.date < $1.date }
+            guard let first = sorted.first else { return nil }
+            var wins = [0, 0]
+            for m in matches where m.winner < 2 { wins[m.winner] += 1 }
+            let winner = wins[1] > wins[0] ? 1 : 0
+            return SessionRecord(
+                id: sessionId,
+                date: first.date,
+                year: cal.component(.year, from: first.date),
+                playerNames: first.players.map(\.name),
+                playerIds: first.players.map(\.id),
+                gamesWon: wins,
+                winner: winner
+            )
+        }
+        .sorted { $0.date > $1.date }
+    }
 
     private func computeStandings() -> [Standings] {
         var map: [String: Standings] = [:]

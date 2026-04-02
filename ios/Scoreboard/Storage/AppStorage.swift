@@ -20,6 +20,7 @@ final class AppStorage {
     private let stateKey   = "scoreboard.state"
     private let undoKey    = "scoreboard.undoStack"
     private let playersKey = "scoreboard.players"
+    private let teamsKey   = "scoreboard.teams"
     private let historyKey = "scoreboard.history"
     private let maxUndo    = 50
 
@@ -100,6 +101,32 @@ final class AppStorage {
         var players = loadPlayers()
         players.removeAll { $0.id == id }
         savePlayers(players)
+    }
+
+    // MARK: - Teams
+
+    func loadTeams() -> [Team] {
+        guard let data = defaults.data(forKey: teamsKey) else { return [] }
+        return (try? decoder.decode([Team].self, from: data)) ?? []
+    }
+
+    func saveTeams(_ teams: [Team]) {
+        defaults.set(try? encoder.encode(teams), forKey: teamsKey)
+    }
+
+    @discardableResult
+    func addTeam(name: String, playerIds: [String]) -> Team {
+        var teams = loadTeams()
+        let team = Team(id: UUID().uuidString, name: name, playerIds: playerIds, createdAt: Date())
+        teams.append(team)
+        saveTeams(teams)
+        return team
+    }
+
+    func deleteTeam(id: String) {
+        var teams = loadTeams()
+        teams.removeAll { $0.id == id }
+        saveTeams(teams)
     }
 
     // MARK: - Match history

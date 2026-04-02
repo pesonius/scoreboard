@@ -43,8 +43,8 @@ enum BadmintonEngine {
     static func initState(config: MatchConfig) -> BadmintonState {
         let now = Date()
         return BadmintonState(
-            sessionMode: config.sessionMode,
-            bestOf: config.sessionMode ? nil : config.bestOf,
+            sessionMode: true,
+            bestOf: nil,
             targetScore: config.targetScore,
             setsWon: [0, 0],
             currentGame: 1,
