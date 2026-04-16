@@ -31,7 +31,7 @@ final class ResponderView: UIView {
     override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
         var handled = false
         for press in presses {
-            if let key = mapPress(press) {
+            if let key = pressKey(for: press) {
                 inputManager?.keyDown(key)
                 handled = true
             }
@@ -42,7 +42,7 @@ final class ResponderView: UIView {
     override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
         var handled = false
         for press in presses {
-            if let key = mapPress(press) {
+            if let key = pressKey(for: press) {
                 inputManager?.keyUp(key)
                 handled = true
             }
@@ -52,12 +52,17 @@ final class ResponderView: UIView {
 
     override func pressesCancelled(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
         for press in presses {
-            if let key = mapPress(press) { inputManager?.keyUp(key) }
+            if let key = pressKey(for: press) { inputManager?.keyUp(key) }
         }
         super.pressesCancelled(presses, with: event)
     }
 
-    private func mapPress(_ press: UIPress) -> String? {
+    // Maps both keyboard keys and mouse/pointer primary button
+    private func pressKey(for press: UIPress) -> String? {
+        // Mouse / pointer primary button — route to fixed player regardless of cursor position
+        if press.type == .select {
+            return "MousePrimary"
+        }
         guard let key = press.key else { return nil }
         switch key.keyCode {
         case .keyboardLeftArrow:     return "ArrowLeft"

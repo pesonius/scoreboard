@@ -13,9 +13,12 @@ final class VolumeInputManager {
     private let midVolume: Float = 0.5
     private var volumeView: MPVolumeView?
 
-    private var lastEventAt: Date = .distantPast
-    private let cooldown: TimeInterval = 1.0
-    private var lastWasUp = true   // repeat this direction when v==mid outside cooldown
+    private var debounceUntil: Date = .distantPast
+    private let debounce: TimeInterval = 0.5
+
+    // Set to true while we are resetting the slider so the resulting
+    // KVO notification is ignored.
+    private var isResetting = false
 
     // MARK: - Lifecycle
 
@@ -26,26 +29,27 @@ final class VolumeInputManager {
             try session.setActive(true)
         } catch {}
         resetVolume()
-        observation = session.observe(\.outputVolume, options: .new) { [weak self] _, change in
-            guard let self, let v = change.newValue else { return }
+        observation = session.observe(\.outputVolume, options: [.new, .old]) { [weak self] _, change in
+            guard let self,
+                  let newV = change.newValue,
+                  let oldV = change.oldValue else { return }
             DispatchQueue.main.async {
-                let elapsed = Date().timeIntervalSince(self.lastEventAt)
-                guard elapsed > self.cooldown else {
-                    self.onDebug?("vol=\(String(format: "%.3f", v)) [cooldown \(Int(elapsed * 1000))ms]")
+                // Ignore the KVO fired by our own reset call
+                if self.isResetting {
+                    self.onDebug?("vol=\(String(format: "%.3f", newV)) [reset, ignored]")
                     return
                 }
 
-                if v > self.midVolume {
-                    self.lastWasUp = true
-                    self.fire(up: true, v: v)
-                } else if v < self.midVolume {
-                    self.lastWasUp = false
-                    self.fire(up: false, v: v)
-                } else {
-                    // v == midVolume: button press coalesced with reset — repeat last direction
-                    self.onDebug?("vol=\(String(format: "%.3f", v)) [at mid → repeat \(self.lastWasUp ? "UP" : "DOWN")]")
-                    self.fire(up: self.lastWasUp, v: v)
+                let delta = newV - oldV
+                guard abs(delta) > 0.01 else { return }  // ignore rounding noise
+
+                let now = Date()
+                guard now >= self.debounceUntil else {
+                    self.onDebug?("vol=\(String(format: "%.3f", newV)) [debounce]")
+                    return
                 }
+
+                self.fire(up: delta > 0, v: newV)
             }
         }
     }
@@ -61,7 +65,7 @@ final class VolumeInputManager {
     // MARK: - Private
 
     private func fire(up: Bool, v: Float) {
-        lastEventAt = Date()
+        debounceUntil = Date().addingTimeInterval(debounce)
         if up {
             onDebug?("vol=\(String(format: "%.3f", v)) → VolumeUP")
             onVolumeUp?()
@@ -84,7 +88,10 @@ final class VolumeInputManager {
 
     private func resetVolume() {
         guard let slider = volumeView?.subviews.first(where: { $0 is UISlider }) as? UISlider else { return }
+        isResetting = true
         slider.setValue(midVolume, animated: false)
         slider.sendActions(for: .valueChanged)
+        // Clear the flag after the KVO has had a chance to fire on the main queue
+        DispatchQueue.main.async { self.isResetting = false }
     }
 }

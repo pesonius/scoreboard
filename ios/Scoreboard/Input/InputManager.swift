@@ -28,7 +28,7 @@ final class InputManager {
     }
 
     private func rebuildMap() {
-        keyToPlayer = [keymap.button1: 0, keymap.button2: 1]
+        keyToPlayer = [keymap.button1: 0, keymap.button2: 1, "MousePrimary": 0]
     }
 
     func keyDown(_ key: String) {

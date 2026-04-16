@@ -36,12 +36,12 @@ final class ScoreboardViewModel: ObservableObject {
         self.config = config
         self.state  = state
         self.inputManager = InputManager(keymap: config.keymap)
-        inputManager.onPoint = { [weak self] p in self?.handlePoint(p) }
+        inputManager.onPoint = { [weak self] p in self?.handleClickerPoint(p) }
         inputManager.onUndo  = { [weak self] in self?.handleUndo() }
         // Top button = mouse click → P1 via tap gesture
         // Bottom button = volume UP → P2
         volumeManager.onVolumeUp   = { [weak self] in self?.handleVolumePoint(1) }
-        volumeManager.onVolumeDown = { [weak self] in self?.handleVolumePoint(0) }
+        volumeManager.onVolumeDown = { [weak self] in self?.handleVolumePoint(1) }
         volumeManager.onDebug = { [weak self] msg in self?.logDebug("VOL: \(msg)") }
         inputManager.onDebug  = { [weak self] msg in self?.logDebug("KEY: \(msg)") }
         startTimers()
@@ -56,8 +56,10 @@ final class ScoreboardViewModel: ObservableObject {
 
     // MARK: - Scoring
 
-    private var lastVolumeAt: Date = .distantPast
-    private let volumeCooldown: TimeInterval = 0.4
+    private var lastVolumeAt:  Date = .distantPast
+    private var lastClickerAt: Date = .distantPast
+    private let volumeCooldown:  TimeInterval = 0.4
+    private let clickerCooldown: TimeInterval = 0.3
 
     func logDebug(_ msg: String) {
         let f = DateFormatter()
@@ -73,10 +75,23 @@ final class ScoreboardViewModel: ObservableObject {
         scorePoint(player)
     }
 
+    // Called by InputManager (keyboard / mouse UIPress) — bypasses tap cooldown
+    func handleClickerPoint(_ player: Int) {
+        lastClickerAt = Date()
+        logDebug("CLICK → score P\(player + 1)")
+        scorePoint(player)
+    }
+
+    // Called by tap gestures — blocked if clicker or volume fired recently
     func handlePoint(_ player: Int) {
-        let elapsed = Date().timeIntervalSince(lastVolumeAt)
-        if elapsed < volumeCooldown {
-            logDebug("TAP P\(player + 1) [blocked, vol \(String(format: "%.0f", elapsed * 1000))ms ago]")
+        let sinceVolume  = Date().timeIntervalSince(lastVolumeAt)
+        let sinceClicker = Date().timeIntervalSince(lastClickerAt)
+        if sinceVolume < volumeCooldown {
+            logDebug("TAP P\(player + 1) [blocked, vol \(Int(sinceVolume * 1000))ms ago]")
+            return
+        }
+        if sinceClicker < clickerCooldown {
+            logDebug("TAP P\(player + 1) [blocked, clicker \(Int(sinceClicker * 1000))ms ago]")
             return
         }
         logDebug("TAP → score P\(player + 1)")
